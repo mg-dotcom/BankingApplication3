@@ -68,8 +68,9 @@ public class Bank {
         }
     }
     
-    public void depositMoney(Account account,double amount){
+    public void depositMoney(Account account, double amount){
         account.deposit(amount);
+        System.out.println(account.getBalance());
         Connection con = BankConnection.connect();
         String sql = "UPDATE account set accBalance = ? where accID = ?";
         try {
@@ -77,13 +78,15 @@ public class Bank {
             preparedStatement.setDouble(1, account.getBalance());
             preparedStatement.setInt(2, account.getNumber());
             preparedStatement.executeUpdate();
+            
         } catch (SQLException ex) {
             Logger.getLogger(Bank.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public void withdrawAccount(Account account,double amount){
+   public void withdrawMoney(Account account, double amount){
         account.withdraw(amount);
+        System.out.println(account.getBalance());
         Connection con = BankConnection.connect();
         String sql = "UPDATE account set accBalance = ? where accID = ?";
         try {
@@ -91,26 +94,27 @@ public class Bank {
             preparedStatement.setDouble(1, account.getBalance());
             preparedStatement.setInt(2, account.getNumber());
             preparedStatement.executeUpdate();
+            
         } catch (SQLException ex) {
             Logger.getLogger(Bank.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public Account getAccount(int number){
-        // we  wil get from database
+        public Account getAccount(int number){
         Connection con = BankConnection.connect();
-        Account account = null;
-        String sql = "SELECT * FROM account where accID = ?";
-        Statement statement;
+        Account account=null;
+        String accountName="";
+        double balance=0;
+        String sql = "select * from account where accID = ?";
         try {
-            String accountName = "";
-            double balance = 0;
-            statement = con.createStatement();
-            ResultSet result = statement.executeQuery(sql);
+            PreparedStatement preparedStatement = con.prepareStatement(sql);
+            preparedStatement.setInt(1, number);
+            ResultSet result = preparedStatement.executeQuery();
             while(result.next()){
                 accountName = result.getString(2);
                 balance = result.getDouble(3);
             }
+            account = new Account(number, accountName, balance);
         } catch (SQLException ex) {
             Logger.getLogger(Bank.class.getName()).log(Level.SEVERE, null, ex);
         }
